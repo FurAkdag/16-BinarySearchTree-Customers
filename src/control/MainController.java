@@ -89,7 +89,10 @@ public class MainController {
      */
     private String traverse(BinarySearchTree tree){
         //TODO 04:  Siehe Rückgabe. You can do it!
-        return "Lege fest, wie die Daten ausgegeben werden sollen!";
+        if(!tree.isEmpty()){
+            return traverse(tree.getLeftTree()) + " | " + tree.getContent().toString() + traverse(tree.getRightTree());
+        }
+        return "";
     }
 
     /**
@@ -121,6 +124,10 @@ public class MainController {
      */
     public boolean insert(String name, int sales){
         //TODO 07:  Erste Methode, die auf der Datenstruktur selbst konkret arbeitet und einige Methoden von ihr aufruft.
+        if(customerTree.search(new Customer(name, sales)) == null){
+            customerTree.insert(new Customer(name, sales));
+            return true;
+        }
         return false;
     }
 
