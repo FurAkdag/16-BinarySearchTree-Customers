@@ -48,7 +48,7 @@ public class Customer implements ComparableContent<Customer> {
 
     @Override
     public boolean isGreater(Customer pContent) {
-        return name.compareTo(pContent.getName()) > 0;
+        return name.compareToIgnoreCase(pContent.getName()) > 0;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class Customer implements ComparableContent<Customer> {
 
     @Override
     public boolean isLess(Customer pContent) {
-        return name.compareTo(pContent.getName()) < 0;
+        return name.compareToIgnoreCase(pContent.getName()) < 0;
     }
 
     //TODO 02: Überarbeite die Klasse so, dass sie in einem BinarySearchTree verwaltet werden kann. Kannst du auch ihre Darstellung im Baum effizient überarbeiten?

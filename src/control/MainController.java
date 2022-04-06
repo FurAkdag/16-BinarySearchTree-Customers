@@ -3,6 +3,7 @@ package control;
 
 import model.BinarySearchTree;
 import model.Customer;
+import model.List;
 import view.DrawingPanel;
 import view.treeView.TreeNode;
 import view.treeView.TreePath;
@@ -124,7 +125,7 @@ public class MainController {
         return sumUpSales(customerTree);
     }
 
-    public int sumUpSales(BinarySearchTree tree){
+    private int sumUpSales(BinarySearchTree tree){
         if(!tree.isEmpty()){
             return sumUpSales(tree.getRightTree()) + sumUpSales(tree.getLeftTree()) + ((Customer) tree.getContent()).getSales();
         }
@@ -139,8 +140,9 @@ public class MainController {
      */
     public boolean insert(String name, int sales){
         //TODO 07:  Erste Methode, die auf der Datenstruktur selbst konkret arbeitet und einige Methoden von ihr aufruft.
-        if(customerTree.search(new Customer(name, sales)) == null){
-            customerTree.insert(new Customer(name, sales));
+        Customer customer = new Customer(name,sales);
+        if(customerTree.search(customer) == null){
+            customerTree.insert(customer);
             return true;
         }
         return false;
@@ -154,8 +156,9 @@ public class MainController {
      */
     public boolean delete(String name){
         //TODO 08: Methode funktioniert so ähnlich wie die vorherige.
-        if(customerTree.search(new Customer(name)) != null){
-            customerTree.remove(customerTree.search(new Customer(name)));
+        Customer customer = new Customer(name);
+        if(customerTree.search(customer) != null){
+            customerTree.remove(customer);
             return true;
         }
         return false;
@@ -169,13 +172,15 @@ public class MainController {
      */
     public String[] searchName(String name){
         //TODO 09: Setze eine Methode zum Suchen eines konkreten Objekts um.
-        String[] output = new String[2];
-        if(customerTree.search(new Customer(name)) != null){
-            output[0] = customerTree.search((new Customer(name))).getName();
-            output[1] = customerTree.search((new Customer(name))).getSales() + "";
+        Customer customer = customerTree.search(new Customer(name));
+        if(customer != null){
+            String[] output = new String[2];
+            output[0] = customer.getName();
+            output[1] = String.valueOf(customer.getSales());
+            return output;
         }
 
-        return output;
+        return null;
     }
 
     /**
@@ -186,21 +191,28 @@ public class MainController {
      */
     public String[] searchSales(int sales){
         //TODO 10: Diese Suche ist deutlich schwieriger umzusetzen als die vorherige. Welche Schwierigkeit ergibt sich hier?
-        String[] output = new String[1];
-        output[0] = searchSales(customerTree,sales);
+        String[] output = new String[2];
+        Customer customer = searchSales(customerTree,sales);
+        if(customer != null){
+            output[0] = customer.getName();
+            output[1] = String.valueOf(customer.getSales());
+            return output;
+        }
         return output;
     }
 
-    public String searchSales(BinarySearchTree tree, int sales){
+    private Customer searchSales(BinarySearchTree<Customer> tree, int sales){
         if(!tree.isEmpty()){
-            if(((Customer) tree.getContent()).getSales() == sales){
-                return ((Customer) tree.getContent()).getName();
+            if(tree.getContent().getSales() == sales){
+                return tree.getContent();
 
-            }else if(!tree.getLeftTree().isEmpty()){
-                return searchSales(tree.getLeftTree(),sales);
-
-            }else if(!tree.getRightTree().isEmpty()){
-                return searchSales(tree.getRightTree(),sales);
+            }
+            Customer cL = searchSales(tree.getLeftTree(),sales);
+            Customer cR = searchSales(tree.getRightTree(),sales);
+            if(cL != null){
+                return cL;
+            }else if (cR != null){
+                return cR;
             }
         }
         return null;
@@ -216,12 +228,39 @@ public class MainController {
      * @param name Name, der als lexikographisches Minimum gilt.
      * @return Zweidimensionales Zeichenketten-Array.
      */
+    private List<Customer> customerListe = new List<>();
+
     public String[][] listUpperNames(String name){
         //TODO 11: Halbwegs sinnvolle Verknüpfung verschiedener Datenstrukturen zur Übung.
-
-        String[][] output = new String[1][2];
+        fillList(customerTree, new Customer(name));
+        int size = 0;
+        customerListe.toFirst();
+        while(customerListe.hasAccess()){
+            size++;
+            customerListe.next();
+        }
+        String[][] output = new String[size][2];
+        customerListe.toFirst();
+        for(int i = 0;customerListe.hasAccess();i++){
+            output[i][0] = customerListe.getContent().getName();
+            output[i][1] = String.valueOf(customerListe.getContent().getSales());
+            customerListe.next();
+        }
         return output;
     }
+
+    public void fillList(BinarySearchTree<Customer> tree, Customer customer){
+        if(!tree.isEmpty()){
+            if(tree.getContent().isGreater(customer)){
+                customerListe.append(tree.getContent());
+                fillList(customerTree.getRightTree(),customer);
+                fillList(customerTree.getLeftTree(),customer);
+            }else if(tree.getContent().isEqual(customer)){
+                fillList(customerTree.getRightTree(),customer);
+            }
+        }
+    }
+
 
     /**
      * Methode wartet darauf, von der Lehrkraft beschrieben zu werden.
